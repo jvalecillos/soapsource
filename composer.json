@@ -2,7 +2,7 @@
     "name": "label305/soap",
     "version": "2.3.0",
     "description": "SOAP datasource for CakePHP",
-    "type": "cakephp-datasource",
+    "type": "cakephp-plugin",
     "homepage": "http://www.label305.com",
     "keywords": [
         "cakephp", 
