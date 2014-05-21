@@ -1,0 +1,31 @@
+{
+    "name": "label305/soap",
+    "version": "2.3.0",
+    "description": "SOAP datasource for CakePHP",
+    "type": "cakephp-plugin",
+    "homepage": "http://www.label305.com",
+    "keywords": [
+        "cakephp", 
+        "datasource",
+        "soap"
+        ],
+    "authors": [
+        {
+            "name": "Joris Blaak",
+            "role": "Developer",
+            "email": "joris@label305.com"
+        },
+        {
+            "name": "Mike Kolkman",
+            "role": "Developer",
+            "email": "mike@label305.com"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/Label305/soapsource"
+    },
+    "require": {
+        "php": ">=5.3",
+        "composer/installers": "*"
+    }
+}
