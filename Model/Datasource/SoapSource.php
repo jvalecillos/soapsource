@@ -182,16 +182,12 @@ class SoapSource extends DataSource {
             $queryData = $args[1][0];
         } 
         
-        if (!empty($headerData)) {
-            $header = new SoapHeader($this->config['headers']['ns'], $this->config['headers']['container'], $headerData);
-            $this->client->__setSoapHeaders($header);
-        }
-        
         if(!isset($method) || !isset($queryData)) {
             return false;
         }
         
         try {
+            $this->_generateSecurityHeaders();
             $result = $this->client->__soapCall($method, $queryData);
         } catch (SoapFault $fault) {
             $this->error = $fault->faultstring;
@@ -203,6 +199,46 @@ class SoapSource extends DataSource {
         } else {
             return $result;
         }
+    }
+
+/**
+ * Generate and set WSSE security headers
+ *
+ * TODO error handling, cleanup, generalization
+ */
+    private function _generateSecurityHeaders(){
+        $secext = $this->config['wsse']['secext'];
+        $username = $this->config['wsse']['username'];
+        $password = $this->config['wsse']['password'];
+
+        //Create Soap Variables for UserName and Password 
+        $objSoapVarUser = new SoapVar($username, XSD_STRING, NULL, $secext, NULL, $secext); 
+        $objSoapVarPass = new SoapVar($password, XSD_STRING, NULL, $secext, NULL, $secext); 
+
+        //Create Object and pass in soap var 
+        $objWSSEAuth = new Object();
+        $objWSSEAuth->Username = $objSoapVarUser;
+        $objWSSEAuth->Password = $objSoapVarPass;
+
+        //Create SoapVar out of object
+        $objSoapVarWSSEAuth = new SoapVar($objWSSEAuth, SOAP_ENC_OBJECT, NULL, $secext, 'UsernameToken', $secext); 
+
+        //Create object for Token node 
+        $objWSSEToken = new Object();
+        $objWSSEToken->UsernameToken = $objSoapVarWSSEAuth;
+
+        //Create SoapVar out of object
+        $objSoapVarWSSEToken = new SoapVar($objWSSEToken, SOAP_ENC_OBJECT, NULL, $secext, 'UsernameToken', $secext); 
+
+        //Create SoapVar for 'Security' node 
+        $objSoapVarHeaderVal = new SoapVar($objSoapVarWSSEToken, SOAP_ENC_OBJECT, NULL, $secext, 'Security', $secext);   
+
+        //Create header object out of security soapvar 
+        $objSoapVarWSSEHeader = new SoapHeader($secext, 'Security', $objSoapVarHeaderVal); 
+
+        //Set headers for soapclient object 
+        $this->client->__setSoapHeaders(array($objSoapVarWSSEHeader)); 
+
     }
     
     /**
