@@ -52,6 +52,8 @@ class SoapSource extends DataSource {
 
     private $responseHeaders;
     
+    public $errors;
+
     /**
      * The default configuration
      *
@@ -85,7 +87,7 @@ class SoapSource extends DataSource {
      */ 
     public function connect() {
         if(!class_exists('SoapClient')) {
-            $this->error = 'Class SoapClient not found, please enable Soap extensions';
+            $this->errors = 'Class SoapClient not found, please enable Soap extensions';
             $this->showError();
             return false;
         }
@@ -124,7 +126,7 @@ class SoapSource extends DataSource {
         try {
             $this->client = new SoapClient($this->config['wsdl'], $options);
         } catch(SoapFault $fault) {
-            $this->error = $fault->faultstring;
+            $this->errors = $fault->faultstring;
             $this->showError();
         }
         
@@ -161,7 +163,7 @@ class SoapSource extends DataSource {
      * @return mixed Returns the result on success, false on failure
      */
     public function query() {
-        $this->error = false;
+        $this->errors = false;
         
         if(!$this->connected) {
             return false;
@@ -192,10 +194,10 @@ class SoapSource extends DataSource {
             $this->_generateSecurityHeaders();
             $result = $this->client->__soapCall($method, $queryData, null, null, $this->responseHeaders);             
         } catch (SoapFault $fault) {
-            $this->error = $fault->faultstring;
+            $this->errors = $fault->faultstring;
         }
         
-        if($this->error) {            
+        if($this->errors) {                        
             return false;   
         } else {
             return $result;
@@ -276,8 +278,8 @@ class SoapSource extends DataSource {
     */
     public function showError($result = null) {
         if(Configure::read() > 0) {
-            if($this->error) {
-                trigger_error('<span style = "color:Red;text-align:left"><b>SOAP Error:</b> ' . $this->error . '</span>', E_USER_WARNING);
+            if($this->errors) {                
+                trigger_error('<span style = "color:Red;text-align:left"><b>SOAP Error:</b> ' .$this->errors . '</span>', E_USER_WARNING);
             }
             if($result) {
                 e(sprintf("<p><b>Result:</b> %s </p>", $result));
