@@ -49,6 +49,8 @@ class SoapSource extends DataSource {
      * @var boolean
      */
     public $connected = false;
+
+    private $responseHeaders;
     
     /**
      * The default configuration
@@ -149,7 +151,7 @@ class SoapSource extends DataSource {
      *
      * @return array List of SOAP methods
      */
-    public function listSources() {
+    public function listSources($data = null) {
        return $this->client->__getFunctions();
     }
     
@@ -188,13 +190,12 @@ class SoapSource extends DataSource {
         
         try {
             $this->_generateSecurityHeaders();
-            $result = $this->client->__soapCall($method, $queryData);
+            $result = $this->client->__soapCall($method, $queryData, null, null, $this->responseHeaders);             
         } catch (SoapFault $fault) {
             $this->error = $fault->faultstring;
         }
         
-        if($this->error) {
-            $this->showError();
+        if($this->error) {            
             return false;   
         } else {
             return $result;
@@ -239,6 +240,14 @@ class SoapSource extends DataSource {
         //Set headers for soapclient object 
         $this->client->__setSoapHeaders(array($objSoapVarWSSEHeader)); 
 
+    }
+
+    public function getHttpResponseHeaders(){
+        return $this->client->__getLastResponseHeaders();
+    }
+
+    public function getResponseHeaders() {
+        return $this->responseHeaders;
     }
     
     /**
