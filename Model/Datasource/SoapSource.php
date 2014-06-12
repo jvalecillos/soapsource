@@ -156,7 +156,81 @@ class SoapSource extends DataSource {
     public function listSources($data = null) {
        return $this->client->__getFunctions();
     }
-    
+
+/**
+ * Used to create new records. The "C" CRUD.
+ *
+ * To-be-overridden in subclasses.
+ *
+ * @param Model $Model The Model to be created.
+ * @param array $fields An Array of fields to be saved.
+ * @param array $values An Array of values to save.
+ * @return boolean success
+ */
+    public function create(Model $Model, $fields = null, $values = null) {
+
+        if(!isset($Model->soapActions['create'])){
+            return false;
+        }
+
+        return $this->query($Model->soapActions['create'], array($Model->request));
+    }
+
+/**
+ * Used to read records from the Datasource. The "R" in CRUD
+ *
+ * To-be-overridden in subclasses.
+ *
+ * @param Model $Model The model being read.
+ * @param array $queryData An array of query data used to find the data you want
+ * @param integer $recursive Number of levels of association
+ * @return mixed
+ */
+    public function read(Model $Model, $queryData = array(), $recursive = null) {
+        
+        if(!isset($Model->soapActions['read'])){
+            return false;
+        }
+
+        return $this->query($Model->soapActions['read'], array($Model->request));
+    }
+
+/**
+ * Update a record(s) in the datasource.
+ *
+ * To-be-overridden in subclasses.
+ *
+ * @param Model $Model Instance of the model class being updated
+ * @param array $fields Array of fields to be updated
+ * @param array $values Array of values to be update $fields to.
+ * @param mixed $conditions
+ * @return boolean Success
+ */
+    public function update(Model $Model, $fields = null, $values = null, $conditions = null) {
+        if(!isset($Model->soapActions['update'])){
+            return false;
+        }
+
+        return $this->query($Model->soapActions['update'], array($Model->request));
+    }
+
+/**
+ * Delete a record(s) in the datasource.
+ *
+ * To-be-overridden in subclasses.
+ *
+ * @param Model $Model The model class having record(s) deleted
+ * @param mixed $conditions The conditions to use for deleting.
+ * @return boolean Success
+ */
+    public function delete(Model $Model, $conditions = null) {
+        if(!isset($Model->soapActions['delete'])){
+            return false;
+        }
+
+        return $this->query($Model->soapActions['delete'], array($Model->request));
+    }
+
     /**
      * Query the SOAP server with the given method and parameters
      *
@@ -170,7 +244,7 @@ class SoapSource extends DataSource {
         }
         
         $args = func_get_args();
-        
+
         $method = null;
         $queryData = null;
 
@@ -184,22 +258,22 @@ class SoapSource extends DataSource {
         } elseif(count($args) > 2 && !empty($args[1])) {
             $method = $args[0];
             $queryData = $args[1][0];
-        } 
-        
+        }
+
         if(!isset($method) || !isset($queryData)) {
             return false;
         }
         
-        try {
+        try {                        
             $this->_generateSecurityHeaders();
             $result = $this->client->__soapCall($method, $queryData, null, null, $this->responseHeaders);             
         } catch (SoapFault $fault) {
             $this->errors = $fault->faultstring;
         }
         
-        if($this->errors) {                        
+        if($this->errors) {                                    
             return false;   
-        } else {
+        } else {                        
             return $result;
         }
     }
