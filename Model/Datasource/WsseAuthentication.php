@@ -16,7 +16,7 @@ class WsseAuthentication {
  */
 	public static function authentication(SoapClient $soap, $authInfo) {
 		//Set headers for soapclient object 
-	       	$header = $this->_generateHeader($authInfo['header']['ns'], $authInfo['header']['container'], $authInfo['login'], $authInfo['password']);
+	       	$header = self::_generateHeader($authInfo['headers']['ns'], $authInfo['headers']['container'], $authInfo['login'], $authInfo['password']);
                 $soap->__setSoapHeaders(array($header)); 
 	}
 
@@ -29,7 +29,7 @@ class WsseAuthentication {
  * @param string $pass
  * @return SoapHeader
  */
-	protected static function _generateHeader($namespace, $container, $user, $pass) {
+	protected static function _generateHeader($namespace, $container, $username, $password) {
 		//Create Soap Variables for UserName and Password 
                 $objSoapVarUser = new SoapVar($username, XSD_STRING, NULL, $namespace, NULL, $namespace); 
                 $objSoapVarPass = new SoapVar($password, XSD_STRING, NULL, $namespace, NULL, $namespace); 

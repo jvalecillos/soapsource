@@ -1,5 +1,5 @@
 <?php
-App::uses('WsseAuthentication', 'Model/Datasource');
+App::import('Soap.Model/Datasource', 'WsseAuthentication');
 /**
  * SoapSource
  * 
