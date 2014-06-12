@@ -99,7 +99,7 @@ class SoapSource extends DataSource {
      * @param array $config An array defining the new configuration settings
      * @return boolean True on success, false on failure
      */ 
-    public function connect() {
+    public function connect() {        
         if(!class_exists('SoapClient')) {
             $this->errors = 'Class SoapClient not found, please enable Soap extensions';
             $this->showError();
@@ -145,9 +145,7 @@ class SoapSource extends DataSource {
         }
         
         if ($this->client) {
-            $this->connected = true;
-
-            WsseAuthentication::authentication($this->client, $this->config);
+            $this->connected = true;            
         }
 
         return $this->connected;
@@ -279,6 +277,8 @@ class SoapSource extends DataSource {
         if(!isset($method) || !isset($queryData)) {
             return false;
         }
+
+        WsseAuthentication::authentication($this->client, $this->config);
 
         try {                                    
             $this->result = $this->client->__soapCall($method, $queryData, null, null, $this->responseHeaders);             
