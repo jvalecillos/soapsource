@@ -123,8 +123,8 @@ class SoapSource extends DataSource {
         }
         if(!empty($this->config['proxy_port'])) {
             $options['proxy_port'] = $this->config['proxy_port'];
-        }
-        
+        }        
+
          /** Workaround to prevent SoapClient throwing a RuntimeException **/
         if (extension_loaded('curl') && Configure::read('debug') > 0 && !empty($this->config['wsdl']) && empty($this->config['curl_off']))
         {
@@ -133,9 +133,10 @@ class SoapSource extends DataSource {
             curl_setopt($ch, CURLOPT_FAILONERROR, true);
             if (!curl_exec($ch))
             {
+                $this->showError('Unable to load WSDL File '. $this->config['wsdl']);
                 throw new Exception("Unable to load WSDL File " . $this->config['wsdl']);
             }
-        }
+        }        
                 
         try {
             $this->client = new SoapClient($this->config['wsdl'], $options);
@@ -251,8 +252,8 @@ class SoapSource extends DataSource {
      * @return mixed Returns the result on success, false on failure
      */
     public function query() {
-        $this->errors = false;
-        
+        $this->errors = false;        
+
         if(!$this->connected) {
             return false;
         }
@@ -276,16 +277,16 @@ class SoapSource extends DataSource {
 
         if(!isset($method) || !isset($queryData)) {
             return false;
-        }
+        }        
 
-        WsseAuthentication::authentication($this->client, $this->config);
+        WsseAuthentication::authentication($this->client, $this->config);        
 
         try {                                    
             $this->result = $this->client->__soapCall($method, $queryData, null, null, $this->responseHeaders);             
         } catch (SoapFault $fault) {
             $this->errors = $fault->faultstring;
         }
-        
+
         if($this->errors) {                                    
             return false;   
         } else {                                           
@@ -334,14 +335,12 @@ class SoapSource extends DataSource {
      * @return string The last SOAP response
     */
     public function showError($result = null) {
-        if(Configure::read() > 0) {
-            if($this->errors) {                
-                trigger_error('<span style = "color:Red;text-align:left"><b>SOAP Error:</b> ' .$this->errors . '</span>', E_USER_WARNING);
-            }
-            if($result) {
-                e(sprintf("<p><b>Result:</b> %s </p>", $result));
-            }
+        if($this->errors) {                
+            $this->log('SOAP Error: '.$this->errors);
         }
+        if($result) {
+            $this->log('Result: '.$result);
+        }        
     }
 
 }
