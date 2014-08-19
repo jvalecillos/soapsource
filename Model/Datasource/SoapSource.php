@@ -123,7 +123,13 @@ class SoapSource extends DataSource {
         }
         if(!empty($this->config['proxy_port'])) {
             $options['proxy_port'] = $this->config['proxy_port'];
-        }        
+        }
+        if(!empty($this->config['proxy_login'])) {
+            $options['proxy_login'] = $this->config['proxy_login'];
+        }
+        if(!empty($this->config['proxy_password'])) {
+            $options['proxy_password'] = $this->config['proxy_password'];
+        }
 
          /** Workaround to prevent SoapClient throwing a RuntimeException **/
         if (extension_loaded('curl') && Configure::read('debug') > 0 && !empty($this->config['wsdl']) && empty($this->config['curl_off']))
